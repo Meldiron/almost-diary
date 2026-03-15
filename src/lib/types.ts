@@ -146,9 +146,9 @@ export interface DiaryEntry {
 	steps?: StepsRange;
 	sleep?: SleepRange;
 	selfCare?: SelfCareRange;
-	songOfTheDay?: string;
-	highlightOfTheDay?: string;
+	notes?: string;
 	completedStamps?: string[];
+	finished?: boolean;
 }
 
 // ── Stamps ───────────────────────────────────────────────────────────────────
@@ -159,9 +159,3 @@ export interface Stamp {
 	imageUrl?: string;
 	createdAt: string;
 }
-
-export const DEFAULT_STAMPS: Omit<Stamp, "id" | "createdAt">[] = [
-	{ description: "Do an exercise" },
-	{ description: "Read a book" },
-	{ description: "Play a game" },
-];

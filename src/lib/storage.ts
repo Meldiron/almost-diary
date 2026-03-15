@@ -1,5 +1,4 @@
 import type { DiaryEntry, Stamp } from "./types";
-import { DEFAULT_STAMPS } from "./types";
 
 export const STORAGE_KEYS = {
 	entries: "diary-entries",
@@ -42,16 +41,7 @@ export function saveEntry(entry: DiaryEntry): void {
 // ── Stamps ───────────────────────────────────────────────────────────────────
 
 export function getStamps(): Stamp[] {
-	const stamps = getItem<Stamp[] | null>(STORAGE_KEYS.stamps, null);
-	if (stamps !== null) return stamps;
-	// Seed defaults on first access
-	const defaults: Stamp[] = DEFAULT_STAMPS.map((s) => ({
-		...s,
-		id: crypto.randomUUID(),
-		createdAt: new Date().toISOString(),
-	}));
-	setItem(STORAGE_KEYS.stamps, defaults);
-	return defaults;
+	return getItem<Stamp[]>(STORAGE_KEYS.stamps, []);
 }
 
 export function saveStamps(stamps: Stamp[]): void {

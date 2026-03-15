@@ -71,21 +71,21 @@ export function AddStampDialog({ apiKey, onAdd }: AddStampDialogProps) {
 			<DialogTrigger asChild>
 				<button
 					type="button"
-					className="flex h-14 w-14 items-center justify-center rounded-lg border-2 border-dashed border-[var(--dash-color)] text-[var(--ink-faint)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+					className="flex h-18 w-18 items-center justify-center rounded-xl border-2 border-dashed border-[var(--dash-color)] text-[var(--ink-faint)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
 				>
-					<Plus className="h-5 w-5" />
+					<Plus className="h-7 w-7" />
 				</button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-md">
+			<DialogContent className="sm:max-w-lg">
 				<DialogHeader>
-					<DialogTitle className="diary-title text-xl">
+					<DialogTitle className="diary-title text-2xl">
 						New Activity Stamp
 					</DialogTitle>
 					<DialogDescription>
 						Add a new activity to track in your diary.
 					</DialogDescription>
 				</DialogHeader>
-				<div className="space-y-4 pt-2">
+				<div className="space-y-5 pt-2">
 					<div className="space-y-2">
 						<label htmlFor="stamp-desc" className="text-sm font-medium">
 							Description
@@ -114,15 +114,14 @@ export function AddStampDialog({ apiKey, onAdd }: AddStampDialogProps) {
 					{apiKey && (
 						<Button
 							variant="outline"
-							size="sm"
 							onClick={handleGenerate}
 							disabled={!description.trim() || generating}
 							className="gap-2"
 						>
 							{generating ? (
-								<Loader2 className="h-4 w-4 animate-spin" />
+								<Loader2 className="h-5 w-5 animate-spin" />
 							) : (
-								<Sparkles className="h-4 w-4" />
+								<Sparkles className="h-5 w-5" />
 							)}
 							Generate Image
 						</Button>
@@ -133,14 +132,14 @@ export function AddStampDialog({ apiKey, onAdd }: AddStampDialogProps) {
 							<img
 								src={imageUrl}
 								alt="Generated stamp"
-								className="h-20 w-20 rounded-lg border-2 border-dashed border-[var(--dash-color)] object-cover"
+								className="h-24 w-24 rounded-xl border-2 border-dashed border-[var(--dash-color)] object-cover"
 							/>
 						</div>
 					)}
 
 					{error && <p className="text-sm text-red-500">{error}</p>}
 
-					<div className="flex justify-end gap-2 pt-2">
+					<div className="flex justify-end gap-3 pt-2">
 						<Button
 							variant="ghost"
 							onClick={() => {

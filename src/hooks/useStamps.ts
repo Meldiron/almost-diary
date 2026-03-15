@@ -1,22 +1,9 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import type { Stamp } from "#/lib/types";
-import { DEFAULT_STAMPS } from "#/lib/types";
 import { useLocalStorage } from "./useLocalStorage";
 
 export function useStamps() {
 	const [stamps, setStamps] = useLocalStorage<Stamp[]>("diary-stamps", []);
-
-	// Seed defaults on first mount if empty
-	useEffect(() => {
-		if (stamps.length === 0) {
-			const defaults: Stamp[] = DEFAULT_STAMPS.map((s) => ({
-				...s,
-				id: crypto.randomUUID(),
-				createdAt: new Date().toISOString(),
-			}));
-			setStamps(defaults);
-		}
-	}, [stamps.length, setStamps]);
 
 	const addStamp = useCallback(
 		(description: string, imageUrl?: string) => {

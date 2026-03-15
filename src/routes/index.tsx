@@ -5,16 +5,7 @@ import {
 	ScrollToDateContext,
 	useRegisterScrollToDate,
 } from "#/lib/scroll-context";
-
-function getToday(): string {
-	return new Date().toISOString().split("T")[0];
-}
-
-function addDays(dateStr: string, days: number): string {
-	const d = new Date(`${dateStr}T00:00:00`);
-	d.setDate(d.getDate() + days);
-	return d.toISOString().split("T")[0];
-}
+import { addDays, getToday } from "#/lib/utils";
 
 function buildDateRange(
 	center: string,
@@ -161,7 +152,7 @@ function DiaryPage() {
 
 	return (
 		<ScrollToDateContext.Provider value={scrollToDate}>
-			<main className="h-[calc(100vh-57px)] overflow-hidden">
+			<main className="h-[calc(100vh-65px)] overflow-hidden">
 				{/* biome-ignore lint/a11y/useSemanticElements: scroll container */}
 				<div
 					ref={scrollRef}

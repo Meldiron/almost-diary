@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
-interface HighlightInputProps {
+interface NotesInputProps {
 	value?: string;
 	onChange: (value: string) => void;
 }
 
-export function HighlightInput({ value = "", onChange }: HighlightInputProps) {
+export function NotesInput({ value = "", onChange }: NotesInputProps) {
 	const [local, setLocal] = useState(value);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -20,12 +20,12 @@ export function HighlightInput({ value = "", onChange }: HighlightInputProps) {
 	}
 
 	return (
-		<input
-			type="text"
-			placeholder="What was the best part of your day?"
+		<textarea
+			placeholder="Write your thoughts..."
 			value={local}
 			onChange={(e) => handleChange(e.target.value)}
-			className="diary-title w-full border-b-2 border-dashed border-[var(--dash-color)] bg-transparent py-1.5 text-base text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:border-[var(--accent)] focus:outline-none"
+			rows={3}
+			className="diary-title w-full resize-none border-2 border-dashed border-[var(--dash-color)] rounded-lg bg-transparent px-3 py-2.5 text-lg text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:border-[var(--accent)] focus:outline-none"
 		/>
 	);
 }

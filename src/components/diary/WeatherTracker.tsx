@@ -10,7 +10,7 @@ export function WeatherTracker({ value, onChange }: WeatherTrackerProps) {
 	const visibleOptions = value ? [value] : WEATHER_OPTIONS;
 
 	return (
-		<div className="flex flex-wrap gap-2">
+		<div className="flex flex-wrap gap-3">
 			{visibleOptions.map((option) => {
 				const meta = WEATHER_META[option];
 				const Icon = meta.icon;
@@ -22,7 +22,7 @@ export function WeatherTracker({ value, onChange }: WeatherTrackerProps) {
 						type="button"
 						onClick={() => onChange(isActive ? undefined : option)}
 						className={cn(
-							"flex items-center gap-1.5 rounded-lg border border-dashed px-3 py-2 transition-all",
+							"flex items-center gap-2 rounded-lg border border-dashed px-4 py-2.5 transition-all",
 							isActive
 								? "border-[var(--accent)] bg-[var(--accent-bg)]"
 								: "border-[var(--dash-color)] text-[var(--ink-soft)] hover:border-[var(--accent-soft)] hover:text-[var(--ink)]",
@@ -30,13 +30,13 @@ export function WeatherTracker({ value, onChange }: WeatherTrackerProps) {
 					>
 						<Icon
 							className={cn(
-								"h-4 w-4",
+								"h-5 w-5",
 								isActive ? "text-[var(--accent-vivid)]" : "",
 							)}
 						/>
 						<span
 							className={cn(
-								"diary-title text-sm font-medium",
+								"diary-title text-base font-medium",
 								isActive ? "text-[var(--accent-vivid)]" : "",
 							)}
 						>

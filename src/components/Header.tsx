@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { BookHeart, CalendarDays } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Calendar } from "#/components/ui/calendar";
 import {
@@ -8,20 +8,25 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "#/components/ui/popover";
+import { useLocalStorage } from "#/hooks/useLocalStorage";
 import { getGlobalScrollToDate } from "#/lib/scroll-context";
+import type { DiaryEntry } from "#/lib/types";
+import { getToday, toDateKey } from "#/lib/utils";
 import { ApiKeyDialog } from "./ApiKeyDialog";
 import ThemeToggle from "./ThemeToggle";
 
-function getToday(): string {
-	return new Date().toISOString().split("T")[0];
-}
-
-function toDateKey(d: Date): string {
-	return d.toISOString().split("T")[0];
-}
-
 export default function Header() {
 	const [calOpen, setCalOpen] = useState(false);
+	const [entries] = useLocalStorage<Record<string, DiaryEntry>>(
+		"diary-entries",
+		{},
+	);
+
+	const finishedDates = useMemo(() => {
+		return Object.values(entries)
+			.filter((e) => e.finished)
+			.map((e) => new Date(`${e.date}T00:00:00`));
+	}, [entries]);
 
 	function handleToday() {
 		getGlobalScrollToDate()?.(getToday());
@@ -34,24 +39,24 @@ export default function Header() {
 	}
 
 	return (
-		<header className="sticky top-0 z-50 border-b border-[var(--paper-edge)] bg-[var(--header-bg)] px-4 backdrop-blur-md">
-			<nav className="page-wrap flex items-center gap-x-3 py-3">
+		<header className="sticky top-0 z-50 border-b border-[var(--paper-edge)] bg-[var(--header-bg)] px-5 backdrop-blur-md">
+			<nav className="page-wrap flex items-center gap-x-4 py-4">
 				<h2 className="m-0 flex-shrink-0">
 					<Link
 						to="/"
-						className="diary-title inline-flex items-center gap-1.5 text-xl font-bold text-[var(--ink)] no-underline"
+						className="diary-title inline-flex items-center gap-2 text-2xl font-bold text-[var(--ink)] no-underline"
 					>
-						<BookHeart className="h-5 w-5 text-[var(--accent-vivid)]" />
+						<BookHeart className="h-7 w-7 text-[var(--accent-vivid)]" />
 						Almost Diary
 					</Link>
 				</h2>
 
-				<div className="ml-auto flex items-center gap-1">
+				<div className="ml-auto flex items-center gap-1.5">
 					<Button
 						variant="ghost"
-						size="sm"
+						size="default"
 						onClick={handleToday}
-						className="diary-title text-sm font-semibold text-[var(--accent-vivid)] hover:bg-[var(--accent-bg)] hover:text-[var(--accent-vivid)]"
+						className="diary-title text-base font-semibold text-[var(--accent-vivid)] hover:bg-[var(--accent-bg)] hover:text-[var(--accent-vivid)]"
 					>
 						Today
 					</Button>
@@ -60,9 +65,9 @@ export default function Header() {
 						<PopoverTrigger asChild>
 							<button
 								type="button"
-								className="rounded-lg p-2 text-[var(--ink-soft)] transition hover:bg-[var(--accent-bg)] hover:text-[var(--accent-vivid)]"
+								className="rounded-lg p-2.5 text-[var(--ink-soft)] transition hover:bg-[var(--accent-bg)] hover:text-[var(--accent-vivid)]"
 							>
-								<CalendarDays className="h-5 w-5" />
+								<CalendarDays className="h-6 w-6" />
 								<span className="sr-only">Pick a date</span>
 							</button>
 						</PopoverTrigger>
@@ -71,6 +76,10 @@ export default function Header() {
 								mode="single"
 								defaultMonth={new Date()}
 								onSelect={handleCalendarSelect}
+								modifiers={{ finished: finishedDates }}
+								modifiersClassNames={{
+									finished: "diary-cal-finished",
+								}}
 							/>
 						</PopoverContent>
 					</Popover>

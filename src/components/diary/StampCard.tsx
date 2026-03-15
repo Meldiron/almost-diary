@@ -18,7 +18,7 @@ function PlaceholderImage({ description }: { description: string }) {
 
 	return (
 		<div
-			className="flex h-full w-full items-center justify-center text-xl font-bold"
+			className="flex h-full w-full items-center justify-center text-2xl font-bold"
 			style={{
 				background: `linear-gradient(135deg, hsl(${hue}, 40%, 88%), hsl(${(hue + 40) % 360}, 35%, 84%))`,
 				color: `hsl(${hue}, 30%, 45%)`,
@@ -36,15 +36,15 @@ export function StampCard({
 	onDelete,
 }: StampCardProps) {
 	return (
-		<div className="group relative flex flex-col items-center gap-1.5">
+		<div className="group relative flex flex-col items-center gap-2">
 			<button
 				type="button"
 				onClick={onToggle}
 				className={cn(
-					"relative h-14 w-14 overflow-hidden rounded-lg border-2 border-dashed transition-all",
+					"relative h-18 w-18 overflow-hidden rounded-xl border-2 border-dashed transition-all",
 					isCompleted
 						? "border-[var(--accent)] opacity-100"
-						: "border-[var(--dash-color)] opacity-50 hover:opacity-80",
+						: "border-[var(--dash-color)] opacity-60 hover:opacity-100 hover:border-[var(--accent-soft)]",
 				)}
 			>
 				{stamp.imageUrl ? (
@@ -58,19 +58,19 @@ export function StampCard({
 				)}
 				{isCompleted && (
 					<div className="absolute inset-0 flex items-center justify-center bg-[var(--accent)]/15">
-						<Check className="h-5 w-5 text-[var(--accent)]" />
+						<Check className="h-6 w-6 text-[var(--accent)]" />
 					</div>
 				)}
 			</button>
-			<span className="diary-title max-w-[4.5rem] text-center text-[0.7rem] leading-tight text-[var(--ink-soft)]">
+			<span className="diary-title max-w-[5.5rem] text-center text-sm leading-tight text-[var(--ink-soft)]">
 				{stamp.description}
 			</span>
 			<button
 				type="button"
 				onClick={onDelete}
-				className="absolute -right-1 -top-1 hidden h-5 w-5 items-center justify-center rounded-full bg-red-50 text-red-400 transition group-hover:flex hover:bg-red-100 hover:text-red-500"
+				className="absolute -right-1 -top-1 hidden h-6 w-6 items-center justify-center rounded-full bg-red-50 text-red-400 transition group-hover:flex hover:bg-red-100 hover:text-red-500"
 			>
-				<Trash2 className="h-3 w-3" />
+				<Trash2 className="h-3.5 w-3.5" />
 			</button>
 		</div>
 	);
