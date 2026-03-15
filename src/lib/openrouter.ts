@@ -21,7 +21,21 @@ export async function generateStampImage(
 ): Promise<string | undefined> {
 	if (!apiKey) return undefined;
 
-	const prompt = `Generate an image: A cute, minimal, flat-style sticker icon for a diary activity stamp. The activity is: "${description}". ${context ? `Additional context: ${context}.` : ""} Style: soft pastel colors, simple shapes, white background, no text, kawaii aesthetic. Square format. The sticker should be tightly cropped to the subject with zero padding or margin`;
+	// Each badge gets a unique visual identity by varying the object/symbol
+	const prompt = `Generate an image of an achievement badge for a personal diary app, similar to Duolingo streak badges or Apple Health achievement medals.
+
+The achievement is: "${description}". ${context ? `Additional context: ${context}.` : ""}
+
+Design requirements:
+- Circular or shield-shaped medal/badge design
+- A single bold iconic symbol in the center representing the activity
+- Soft gradient background within the badge (use warm pastel tones like peach, lavender, mint, coral, or sky blue — pick one that fits the activity)
+- Subtle metallic or glossy rim/border around the badge edge
+- Clean, modern, flat illustration style — NOT 3D, NOT photorealistic
+- Absolutely NO text, NO letters, NO words, NO labels anywhere
+- Transparent background outside the badge (PNG alpha)
+- Tightly cropped to the badge with zero padding
+- Each badge should feel unique through its color palette and central symbol — make it feel like a collectible reward`;
 
 	const response = await fetch(
 		"https://openrouter.ai/api/v1/chat/completions",

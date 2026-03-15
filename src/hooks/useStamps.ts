@@ -19,6 +19,15 @@ export function useStamps() {
 		[setStamps],
 	);
 
+	const updateStamp = useCallback(
+		(id: string, description: string, imageUrl?: string) => {
+			setStamps((prev) =>
+				prev.map((s) => (s.id === id ? { ...s, description, imageUrl } : s)),
+			);
+		},
+		[setStamps],
+	);
+
 	const removeStamp = useCallback(
 		(id: string) => {
 			setStamps((prev) => prev.filter((s) => s.id !== id));
@@ -26,5 +35,5 @@ export function useStamps() {
 		[setStamps],
 	);
 
-	return { stamps, addStamp, removeStamp };
+	return { stamps, addStamp, updateStamp, removeStamp };
 }

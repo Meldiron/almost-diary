@@ -11,11 +11,11 @@
   --ink: #2c2420;
   --ink-soft: #6b5e57;
   --ink-faint: #a89a93;
-  --accent: #c47b6b;
-  --accent-vivid: #b8513d;
-  --accent-soft: #d4a292;
-  --accent-bg: rgba(196, 123, 107, 0.08);
-  --accent-bg-solid: #f8ece9;
+  --accent: #e8967c;
+  --accent-vivid: #e07a5c;
+  --accent-soft: #f0b8a4;
+  --accent-bg: rgba(232, 150, 124, 0.1);
+  --accent-bg-solid: #fdf0ec;
   --paper: #faf6f1;
   --paper-warm: #f5efe7;
   --paper-edge: #e8ddd2;
@@ -31,7 +31,7 @@
   --card-foreground: oklch(0.2 0.02 50);
   --popover: oklch(0.98 0.005 70);
   --popover-foreground: oklch(0.2 0.02 50);
-  --primary: oklch(0.55 0.1 30);
+  --primary: oklch(0.65 0.12 45);
   --primary-foreground: oklch(0.98 0.005 70);
   --secondary: oklch(0.94 0.008 70);
   --secondary-foreground: oklch(0.3 0.02 50);
@@ -43,8 +43,8 @@
   --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: oklch(0.88 0.01 70);
   --input: oklch(0.88 0.01 70);
-  --ring: oklch(0.6 0.1 30);
-  --chart-1: oklch(0.55 0.1 30);
+  --ring: oklch(0.7 0.1 45);
+  --chart-1: oklch(0.65 0.12 45);
   --chart-2: oklch(0.6 0.12 60);
   --chart-3: oklch(0.5 0.08 150);
   --chart-4: oklch(0.65 0.15 80);
@@ -52,23 +52,23 @@
   --radius: 0.5rem;
   --sidebar: oklch(0.97 0.006 70);
   --sidebar-foreground: oklch(0.2 0.02 50);
-  --sidebar-primary: oklch(0.55 0.1 30);
+  --sidebar-primary: oklch(0.65 0.12 45);
   --sidebar-primary-foreground: oklch(0.98 0.005 70);
   --sidebar-accent: oklch(0.94 0.008 70);
   --sidebar-accent-foreground: oklch(0.3 0.02 50);
   --sidebar-border: oklch(0.88 0.01 70);
-  --sidebar-ring: oklch(0.6 0.1 30);
+  --sidebar-ring: oklch(0.7 0.1 45);
 }
 
 .dark {
   --ink: #e8ddd2;
   --ink-soft: #b0a69e;
   --ink-faint: #736a63;
-  --accent: #d4917f;
-  --accent-vivid: #e07760;
-  --accent-soft: #a36b5c;
-  --accent-bg: rgba(212, 145, 127, 0.1);
-  --accent-bg-solid: #2a1f1c;
+  --accent: #f0a88e;
+  --accent-vivid: #f4bda8;
+  --accent-soft: #c48774;
+  --accent-bg: rgba(240, 168, 142, 0.12);
+  --accent-bg-solid: #2c2220;
   --paper: #1a1614;
   --paper-warm: #201c19;
   --paper-edge: #2e2824;
@@ -83,7 +83,7 @@
   --card-foreground: oklch(0.9 0.01 70);
   --popover: oklch(0.18 0.01 50);
   --popover-foreground: oklch(0.9 0.01 70);
-  --primary: oklch(0.7 0.1 30);
+  --primary: oklch(0.75 0.1 45);
   --primary-foreground: oklch(0.15 0.01 50);
   --secondary: oklch(0.22 0.01 50);
   --secondary-foreground: oklch(0.9 0.01 70);
@@ -95,20 +95,20 @@
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: oklch(0.28 0.01 50);
   --input: oklch(0.28 0.01 50);
-  --ring: oklch(0.5 0.08 30);
-  --chart-1: oklch(0.7 0.1 30);
+  --ring: oklch(0.6 0.08 45);
+  --chart-1: oklch(0.75 0.1 45);
   --chart-2: oklch(0.65 0.1 60);
   --chart-3: oklch(0.6 0.08 150);
   --chart-4: oklch(0.7 0.12 80);
   --chart-5: oklch(0.65 0.1 330);
   --sidebar: oklch(0.18 0.01 50);
   --sidebar-foreground: oklch(0.9 0.01 70);
-  --sidebar-primary: oklch(0.7 0.1 30);
+  --sidebar-primary: oklch(0.75 0.1 45);
   --sidebar-primary-foreground: oklch(0.15 0.01 50);
   --sidebar-accent: oklch(0.22 0.01 50);
   --sidebar-accent-foreground: oklch(0.9 0.01 70);
   --sidebar-border: oklch(0.28 0.01 50);
-  --sidebar-ring: oklch(0.5 0.08 30);
+  --sidebar-ring: oklch(0.6 0.08 45);
 }
 
 @theme inline {
@@ -180,10 +180,10 @@ body {
   display: none;
 }
 
-/* ── Dashed section dividers ──────────────────────────────────────────── */
+/* ── Section divider (spacing only, no visual) ───────────────────────── */
 .diary-divider {
   border: none;
-  border-top: 2px dashed var(--dash-color);
+  height: 0;
 }
 
 /* ── The diary "page" card ────────────────────────────────────────────── */
@@ -291,6 +291,11 @@ a {
   background-color: var(--accent-bg) !important;
   color: var(--accent-vivid) !important;
   font-weight: 700 !important;
+}
+
+/* ── Customize drawer chevron rotation ─────────────────────────────────── */
+.customize-drawer-trigger[data-state="open"] .customize-drawer-chevron {
+  transform: rotate(180deg);
 }
 
 @layer base {

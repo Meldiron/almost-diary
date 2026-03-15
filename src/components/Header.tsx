@@ -12,7 +12,7 @@ import { useLocalStorage } from "#/hooks/useLocalStorage";
 import { getGlobalScrollToDate } from "#/lib/scroll-context";
 import type { DiaryEntry } from "#/lib/types";
 import { getToday, toDateKey } from "#/lib/utils";
-import { ApiKeyDialog } from "./ApiKeyDialog";
+import { SettingsMenu } from "./SettingsMenu";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
@@ -84,7 +84,7 @@ export default function Header() {
 						</PopoverContent>
 					</Popover>
 
-					<ApiKeyDialog />
+					<SettingsMenu />
 					<ThemeToggle />
 				</div>
 			</nav>

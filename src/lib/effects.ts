@@ -385,7 +385,7 @@ export function effectSelect(rect: DOMRect) {
 		makeParticles(
 			12,
 			["✦", "·", "★", "•"],
-			["#c47b6b", "#d4a292", "#b8513d"],
+			["#e8967c", "#f0b8a4", "#e07a5c"],
 			3,
 			14,
 		),
@@ -410,7 +410,7 @@ export function effectConfetti() {
 		"#a78bfa",
 		"#fb7185",
 		"#f59e0b",
-		"#c47b6b",
+		"#e8967c",
 	];
 
 	const particles: {

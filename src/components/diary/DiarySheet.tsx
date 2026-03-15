@@ -1,6 +1,7 @@
+import type { LucideIcon } from "lucide-react";
 import {
 	Activity,
-	CheckCircle2,
+	Check,
 	Circle,
 	Cloud,
 	Coins,
@@ -11,42 +12,68 @@ import {
 	Sparkles,
 } from "lucide-react";
 import { ActivityLog } from "#/components/diary/ActivityLog";
-import { MoodTracker } from "#/components/diary/MoodTracker";
+import { ConfigTracker } from "#/components/diary/ConfigTracker";
 import { NotesInput } from "#/components/diary/NotesInput";
-import { RangeTracker } from "#/components/diary/RangeTracker";
 import { TrackerSection } from "#/components/diary/TrackerSection";
-import { WeatherTracker } from "#/components/diary/WeatherTracker";
 import { useDiaryEntry } from "#/hooks/useDiaryEntry";
 import { useLocalStorage } from "#/hooks/useLocalStorage";
 import { useStamps } from "#/hooks/useStamps";
+import { useTrackerConfig } from "#/hooks/useTrackerConfig";
 import {
 	effectConfetti,
 	moneyEffects,
+	moodEffects,
 	selfCareEffects,
 	sleepEffects,
 	stepsEffects,
+	weatherEffects,
 } from "#/lib/effects";
 import {
 	moneySounds,
+	moodSounds,
 	playConfetti,
 	selfCareSounds,
 	sleepSounds,
 	stepsSounds,
+	weatherSounds,
 } from "#/lib/sounds";
-import {
-	MONEY_COLORS,
-	MONEY_LABELS,
-	MONEY_OPTIONS,
-	SELFCARE_COLORS,
-	SELFCARE_LABELS,
-	SELFCARE_OPTIONS,
-	SLEEP_COLORS,
-	SLEEP_LABELS,
-	SLEEP_OPTIONS,
-	STEPS_COLORS,
-	STEPS_LABELS,
-	STEPS_OPTIONS,
-} from "#/lib/types";
+
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+	weather: Cloud,
+	mood: Heart,
+	money: Coins,
+	steps: Footprints,
+	sleep: Moon,
+	selfCare: Sparkles,
+};
+
+const CATEGORY_EFFECTS: Record<string, Record<string, (r: DOMRect) => void>> = {
+	weather: weatherEffects,
+	mood: moodEffects,
+	money: moneyEffects,
+	steps: stepsEffects,
+	sleep: sleepEffects,
+	selfCare: selfCareEffects,
+};
+
+const CATEGORY_SOUNDS: Record<string, Record<string, () => void>> = {
+	weather: weatherSounds,
+	mood: moodSounds,
+	money: moneySounds,
+	steps: stepsSounds,
+	sleep: sleepSounds,
+	selfCare: selfCareSounds,
+};
+
+// Map category IDs to diary entry field names
+const CATEGORY_FIELD: Record<string, string> = {
+	weather: "weather",
+	mood: "mood",
+	money: "money",
+	steps: "steps",
+	sleep: "sleep",
+	selfCare: "selfCare",
+};
 
 function formatDisplayDate(dateStr: string): string {
 	const d = new Date(`${dateStr}T00:00:00`);
@@ -65,14 +92,17 @@ interface DiarySheetProps {
 
 export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 	const { entry, updateEntry } = useDiaryEntry(date);
-	const { stamps, addStamp, removeStamp } = useStamps();
+	const { stamps, addStamp, updateStamp, removeStamp } = useStamps();
 	const [apiKey] = useLocalStorage("diary-openrouter-key", "");
+	const { optionsMap, config } = useTrackerConfig();
 	const finished = !!entry.finished;
 
-	function markComplete() {
+	function markComplete(e: React.MouseEvent) {
 		updateEntry({ finished: true });
 		effectConfetti();
 		playConfetti();
+		const sheet = (e.currentTarget as HTMLElement).closest(".diary-sheet");
+		sheet?.scrollIntoView({ behavior: "smooth", block: "start" });
 	}
 
 	function toggleFinished() {
@@ -90,6 +120,20 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 			: [...current, stampId];
 		updateEntry({ completedStamps: updated });
 	}
+
+	function getEntryValue(categoryId: string): string | undefined {
+		const field = CATEGORY_FIELD[categoryId];
+		if (!field) return undefined;
+		return (entry as Record<string, unknown>)[field] as string | undefined;
+	}
+
+	function setEntryValue(categoryId: string, value: string | undefined) {
+		const field = CATEGORY_FIELD[categoryId];
+		if (!field) return;
+		updateEntry({ [field]: value });
+	}
+
+	const trackerCategories = config.categories;
 
 	return (
 		<div
@@ -110,99 +154,43 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 					aria-label={finished ? "Mark as unfinished" : "Mark as finished"}
 				>
 					{finished ? (
-						<CheckCircle2 className="h-6 w-6 text-[var(--accent-vivid)]" />
+						<Check className="h-6 w-6 text-[var(--accent-vivid)]" />
 					) : (
 						<Circle className="h-6 w-6 text-[var(--ink-faint)]" />
 					)}
 				</button>
 			</div>
 
-			<hr className="diary-divider mt-5 mb-6" />
+			<div className="diary-divider mt-10 mb-10" />
 
 			{finished ? (
 				<>
 					{/* ── Finished: compact grid ──────────────────────── */}
 					<div className="grid grid-cols-2 gap-x-8 gap-y-6">
-						<TrackerSection
-							title="Weather"
-							icon={Cloud}
-							finished
-							noRecord={!entry.weather}
-						>
-							<WeatherTracker value={entry.weather} onChange={() => {}} />
-						</TrackerSection>
-
-						<TrackerSection
-							title="Mood"
-							icon={Heart}
-							finished
-							noRecord={!entry.mood}
-						>
-							<MoodTracker value={entry.mood} onChange={() => {}} />
-						</TrackerSection>
-
-						<TrackerSection
-							title="Money Spent"
-							icon={Coins}
-							finished
-							noRecord={!entry.money}
-						>
-							<RangeTracker
-								options={MONEY_OPTIONS}
-								labels={MONEY_LABELS}
-								colors={MONEY_COLORS}
-								value={entry.money}
-								onChange={() => {}}
-							/>
-						</TrackerSection>
-
-						<TrackerSection
-							title="Steps"
-							icon={Footprints}
-							finished
-							noRecord={!entry.steps}
-						>
-							<RangeTracker
-								options={STEPS_OPTIONS}
-								labels={STEPS_LABELS}
-								colors={STEPS_COLORS}
-								value={entry.steps}
-								onChange={() => {}}
-							/>
-						</TrackerSection>
-
-						<TrackerSection
-							title="Sleep"
-							icon={Moon}
-							finished
-							noRecord={!entry.sleep}
-						>
-							<RangeTracker
-								options={SLEEP_OPTIONS}
-								labels={SLEEP_LABELS}
-								colors={SLEEP_COLORS}
-								value={entry.sleep}
-								onChange={() => {}}
-							/>
-						</TrackerSection>
-
-						<TrackerSection
-							title="Self-Care"
-							icon={Sparkles}
-							finished
-							noRecord={!entry.selfCare}
-						>
-							<RangeTracker
-								options={SELFCARE_OPTIONS}
-								labels={SELFCARE_LABELS}
-								colors={SELFCARE_COLORS}
-								value={entry.selfCare}
-								onChange={() => {}}
-							/>
-						</TrackerSection>
+						{trackerCategories.map((cat) => {
+							const val = getEntryValue(cat.id);
+							const map = optionsMap[cat.id];
+							return (
+								<TrackerSection
+									key={cat.id}
+									title={cat.title}
+									icon={CATEGORY_ICONS[cat.id]}
+									finished
+									noRecord={!val}
+								>
+									<ConfigTracker
+										options={map.options}
+										labels={map.labels}
+										colors={map.colors}
+										value={val}
+										onChange={() => {}}
+									/>
+								</TrackerSection>
+							);
+						})}
 					</div>
 
-					<hr className="diary-divider mt-7 mb-6" />
+					<div className="diary-divider mt-10 mb-10" />
 
 					<TrackerSection
 						title="Notes"
@@ -215,7 +203,7 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 						</p>
 					</TrackerSection>
 
-					<hr className="diary-divider mt-7 mb-6" />
+					<div className="diary-divider mt-10 mb-10" />
 
 					<TrackerSection title="Activity Log" icon={Activity} finished>
 						<ActivityLog
@@ -231,109 +219,33 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 			) : (
 				<>
 					{/* ── Editing: vertical list ─────────────────────── */}
-					<TrackerSection
-						title="Weather"
-						icon={Cloud}
-						hasValue={!!entry.weather}
-						onReset={() => updateEntry({ weather: undefined })}
-					>
-						<WeatherTracker
-							value={entry.weather}
-							onChange={(v) => updateEntry({ weather: v })}
-						/>
-					</TrackerSection>
+					{trackerCategories.map((cat, idx) => {
+						const val = getEntryValue(cat.id);
+						const map = optionsMap[cat.id];
+						return (
+							<div key={cat.id}>
+								{idx > 0 && <div className="diary-divider mt-14 mb-10" />}
+								<TrackerSection
+									title={cat.title}
+									icon={CATEGORY_ICONS[cat.id]}
+									hasValue={!!val}
+									onReset={() => setEntryValue(cat.id, undefined)}
+								>
+									<ConfigTracker
+										options={map.options}
+										labels={map.labels}
+										colors={map.colors}
+										value={val}
+										onChange={(v) => setEntryValue(cat.id, v)}
+										effects={CATEGORY_EFFECTS[cat.id]}
+										sounds={CATEGORY_SOUNDS[cat.id]}
+									/>
+								</TrackerSection>
+							</div>
+						);
+					})}
 
-					<hr className="diary-divider mt-7 mb-6" />
-
-					<TrackerSection
-						title="Mood"
-						icon={Heart}
-						hasValue={!!entry.mood}
-						onReset={() => updateEntry({ mood: undefined })}
-					>
-						<MoodTracker
-							value={entry.mood}
-							onChange={(v) => updateEntry({ mood: v })}
-						/>
-					</TrackerSection>
-
-					<hr className="diary-divider mt-7 mb-6" />
-
-					<TrackerSection
-						title="Money Spent"
-						icon={Coins}
-						hasValue={!!entry.money}
-						onReset={() => updateEntry({ money: undefined })}
-					>
-						<RangeTracker
-							options={MONEY_OPTIONS}
-							labels={MONEY_LABELS}
-							colors={MONEY_COLORS}
-							value={entry.money}
-							onChange={(v) => updateEntry({ money: v })}
-							effects={moneyEffects}
-							sounds={moneySounds}
-						/>
-					</TrackerSection>
-
-					<hr className="diary-divider mt-7 mb-6" />
-
-					<TrackerSection
-						title="Steps"
-						icon={Footprints}
-						hasValue={!!entry.steps}
-						onReset={() => updateEntry({ steps: undefined })}
-					>
-						<RangeTracker
-							options={STEPS_OPTIONS}
-							labels={STEPS_LABELS}
-							colors={STEPS_COLORS}
-							value={entry.steps}
-							onChange={(v) => updateEntry({ steps: v })}
-							effects={stepsEffects}
-							sounds={stepsSounds}
-						/>
-					</TrackerSection>
-
-					<hr className="diary-divider mt-7 mb-6" />
-
-					<TrackerSection
-						title="Sleep"
-						icon={Moon}
-						hasValue={!!entry.sleep}
-						onReset={() => updateEntry({ sleep: undefined })}
-					>
-						<RangeTracker
-							options={SLEEP_OPTIONS}
-							labels={SLEEP_LABELS}
-							colors={SLEEP_COLORS}
-							value={entry.sleep}
-							onChange={(v) => updateEntry({ sleep: v })}
-							effects={sleepEffects}
-							sounds={sleepSounds}
-						/>
-					</TrackerSection>
-
-					<hr className="diary-divider mt-7 mb-6" />
-
-					<TrackerSection
-						title="Self-Care"
-						icon={Sparkles}
-						hasValue={!!entry.selfCare}
-						onReset={() => updateEntry({ selfCare: undefined })}
-					>
-						<RangeTracker
-							options={SELFCARE_OPTIONS}
-							labels={SELFCARE_LABELS}
-							colors={SELFCARE_COLORS}
-							value={entry.selfCare}
-							onChange={(v) => updateEntry({ selfCare: v })}
-							effects={selfCareEffects}
-							sounds={selfCareSounds}
-						/>
-					</TrackerSection>
-
-					<hr className="diary-divider mt-7 mb-6" />
+					<div className="diary-divider mt-14 mb-10" />
 
 					<TrackerSection title="Notes" icon={Notebook}>
 						<NotesInput
@@ -342,7 +254,7 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 						/>
 					</TrackerSection>
 
-					<hr className="diary-divider mt-7 mb-6" />
+					<div className="diary-divider mt-14 mb-10" />
 
 					<TrackerSection title="Activity Log" icon={Activity}>
 						<ActivityLog
@@ -352,18 +264,23 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 							onToggleStamp={handleToggleStamp}
 							onDeleteStamp={removeStamp}
 							onAddStamp={addStamp}
+							onUpdateStamp={updateStamp}
 						/>
 					</TrackerSection>
 
-					<hr className="diary-divider mt-7 mb-6" />
+					<div className="diary-divider mt-14 mb-10" />
 
 					<button
 						type="button"
 						onClick={markComplete}
-						className="diary-title flex w-full items-center justify-center gap-2.5 rounded-lg border-2 border-dashed border-[var(--accent-soft)] bg-[var(--accent-bg)] py-4 text-lg font-semibold text-[var(--accent)] transition hover:border-[var(--accent-vivid)] hover:bg-[rgba(196,123,107,0.15)]"
+						className="group flex w-full items-center gap-4 rounded-lg border border-[var(--dash-color)] bg-[var(--paper)] px-5 py-4 transition hover:border-[var(--accent-soft)] hover:bg-[var(--accent-bg-solid)]"
 					>
-						<CheckCircle2 className="h-6 w-6" />
-						Mark day as complete
+						<span className="flex h-7 w-7 items-center justify-center rounded-md border-2 border-[var(--dash-color)] transition group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-white">
+							<Check className="h-4 w-4 opacity-0 transition group-hover:opacity-100" />
+						</span>
+						<span className="diary-title text-lg text-[var(--ink-soft)] transition group-hover:text-[var(--ink)]">
+							Mark day as complete
+						</span>
 					</button>
 				</>
 			)}

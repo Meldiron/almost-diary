@@ -1,4 +1,4 @@
-import { Check, Trash2 } from "lucide-react";
+import { Check, Pencil } from "lucide-react";
 import type { Stamp } from "#/lib/types";
 import { cn } from "#/lib/utils";
 
@@ -6,7 +6,7 @@ interface StampCardProps {
 	stamp: Stamp;
 	isCompleted: boolean;
 	onToggle: () => void;
-	onDelete: () => void;
+	onEdit: () => void;
 }
 
 function PlaceholderImage({ description }: { description: string }) {
@@ -33,7 +33,7 @@ export function StampCard({
 	stamp,
 	isCompleted,
 	onToggle,
-	onDelete,
+	onEdit,
 }: StampCardProps) {
 	return (
 		<div className="group relative flex flex-col items-center gap-2">
@@ -67,10 +67,10 @@ export function StampCard({
 			</span>
 			<button
 				type="button"
-				onClick={onDelete}
-				className="absolute -right-1 -top-1 hidden h-6 w-6 items-center justify-center rounded-full bg-red-50 text-red-400 transition group-hover:flex hover:bg-red-100 hover:text-red-500"
+				onClick={onEdit}
+				className="absolute -right-1 -top-1 hidden h-6 w-6 items-center justify-center rounded-full bg-[var(--paper)] text-[var(--ink-faint)] shadow-sm border border-[var(--dash-color)] transition group-hover:flex hover:text-[var(--accent-vivid)] hover:border-[var(--accent-soft)]"
 			>
-				<Trash2 className="h-3.5 w-3.5" />
+				<Pencil className="h-3 w-3" />
 			</button>
 		</div>
 	);
