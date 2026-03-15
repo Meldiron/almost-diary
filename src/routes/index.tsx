@@ -24,9 +24,7 @@ function DiaryPage() {
 		<ScrollToDateContext.Provider value={scrollToDate}>
 			<main className="min-h-[calc(100vh-65px)] overflow-y-auto">
 				<div className="flex justify-center pt-6 pb-6">
-					<div className="diary-sheet-wrap">
-						<DiarySheet date={activeDate} isCenter />
-					</div>
+					<DiarySheet date={activeDate} isCenter />
 				</div>
 			</main>
 		</ScrollToDateContext.Provider>
