@@ -11,6 +11,7 @@ interface ConfigTrackerProps {
 	onChange: (value: string | undefined) => void;
 	effects?: Record<string, (r: DOMRect) => void>;
 	sounds?: Record<string, () => void>;
+	disabled?: boolean;
 }
 
 export function ConfigTracker({
@@ -21,10 +22,12 @@ export function ConfigTracker({
 	onChange,
 	effects,
 	sounds,
+	disabled,
 }: ConfigTrackerProps) {
 	const visibleOptions = value ? [value] : options;
 
 	function handleClick(e: MouseEvent, option: string, isActive: boolean) {
+		if (disabled) return;
 		if (!isActive) {
 			const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
 			if (effects?.[option]) {
@@ -42,7 +45,7 @@ export function ConfigTracker({
 	}
 
 	return (
-		<div className="flex flex-wrap gap-3">
+		<div className={cn("flex flex-wrap gap-3", disabled && "opacity-50 pointer-events-none")}>
 			{visibleOptions.map((option) => {
 				const isActive = value === option;
 				const color = colors[option];
@@ -52,6 +55,7 @@ export function ConfigTracker({
 						key={option}
 						type="button"
 						onClick={(e) => handleClick(e, option, isActive)}
+						disabled={disabled}
 						className={cn(
 							"diary-title flex items-center gap-2 rounded-full border border-dashed px-4 py-1.5 text-base font-semibold transition-all",
 							isActive

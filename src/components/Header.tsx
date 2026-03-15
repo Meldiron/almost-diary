@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { BookHeart, CalendarDays } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { BarChart3, BookHeart, CalendarDays } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Calendar } from "#/components/ui/calendar";
@@ -13,9 +13,9 @@ import { getGlobalScrollToDate } from "#/lib/scroll-context";
 import type { DiaryEntry } from "#/lib/types";
 import { getToday, toDateKey } from "#/lib/utils";
 import { SettingsMenu } from "./SettingsMenu";
-import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
+	const navigate = useNavigate();
 	const [calOpen, setCalOpen] = useState(false);
 	const [entries] = useLocalStorage<Record<string, DiaryEntry>>(
 		"diary-entries",
@@ -84,8 +84,15 @@ export default function Header() {
 						</PopoverContent>
 					</Popover>
 
+					<button
+						type="button"
+						onClick={() => navigate({ to: "/statistics" })}
+						className="rounded-lg p-2.5 text-[var(--ink-soft)] transition hover:bg-[var(--accent-bg)] hover:text-[var(--accent-vivid)]"
+					>
+						<BarChart3 className="h-6 w-6" />
+						<span className="sr-only">Statistics</span>
+					</button>
 					<SettingsMenu />
-					<ThemeToggle />
 				</div>
 			</nav>
 		</header>

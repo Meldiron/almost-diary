@@ -187,28 +187,33 @@ body {
 }
 
 /* ── The diary "page" card ────────────────────────────────────────────── */
+/* Wrapper provides the border via drop-shadow since mask clips border */
+.diary-sheet-wrap {
+  filter:
+    drop-shadow(0 0 1px var(--paper-edge))
+    drop-shadow(0 0 0.5px var(--paper-edge))
+    drop-shadow(2px 3px 8px rgba(0, 0, 0, 0.1))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.08));
+}
+
 .diary-sheet {
   background-color: var(--paper);
   background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
   background-size: 20px 20px;
-  border: 1px solid var(--paper-edge);
-  box-shadow:
-    2px 3px 8px rgba(0, 0, 0, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.04);
   position: relative;
+  /* Torn jagged left edge */
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='80'%3E%3Cpolygon points='0,0 16,0 16,80 0,80 8,68 2,56 10,42 3,28 11,14' fill='white'/%3E%3C/svg%3E"), linear-gradient(black, black);
+  mask-size: 16px 80px, 100% 100%;
+  mask-position: left top, 6px top;
+  mask-repeat: repeat-y, no-repeat;
+  mask-composite: add;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='80'%3E%3Cpolygon points='0,0 16,0 16,80 0,80 8,68 2,56 10,42 3,28 11,14' fill='white'/%3E%3C/svg%3E"), linear-gradient(black, black);
+  -webkit-mask-size: 16px 80px, 100% 100%;
+  -webkit-mask-position: left top, 6px top;
+  -webkit-mask-repeat: repeat-y, no-repeat;
+  -webkit-mask-composite: source-over;
 }
 
-/* left margin line like a real notebook */
-.diary-sheet::before {
-  content: '';
-  position: absolute;
-  left: 3.25rem;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--accent-soft);
-  opacity: 0.3;
-}
 
 /* handwriting-style section titles */
 .diary-title {

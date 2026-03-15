@@ -14,13 +14,13 @@ import {
 import { ColorPicker } from "#/components/ui/color-picker";
 import { effectHabitComplete, effectHabitUndo } from "#/lib/effects";
 import { playHabitComplete, playHabitUndo } from "#/lib/sounds";
-import type { Habit, HabitSnapshot } from "#/lib/types";
+import type { CompletedHabit, Habit, HabitSnapshot } from "#/lib/types";
 import { HABIT_COLORS } from "#/lib/types";
 import { cn } from "#/lib/utils";
 
 interface HabitListProps {
 	habits: Habit[];
-	completedHabits: string[];
+	completedHabits: CompletedHabit[];
 	onToggle: (habitId: string) => void;
 	onAdd: (name: string, color: string) => void;
 	onUpdate: (id: string, name: string, color: string) => void;
@@ -120,23 +120,52 @@ export function HabitList({
 		);
 	}
 
-	// Fallback readOnly without snapshot
-	const visibleHabits = readOnly
-		? habits.filter((h) => completedHabits.includes(h.id))
-		: habits;
-
-	if (readOnly && visibleHabits.length === 0) {
+	// Fallback readOnly without snapshot — render from stored CompletedHabit data
+	if (readOnly) {
+		if (completedHabits.length === 0) {
+			return (
+				<p className="diary-title text-base text-[var(--ink-faint)]">
+					No habits completed this day.
+				</p>
+			);
+		}
 		return (
-			<p className="diary-title text-base text-[var(--ink-faint)]">
-				No habits completed this day.
-			</p>
+			<div className="space-y-2">
+				{completedHabits.map((ch) => (
+					<div key={ch.id} className="flex items-center gap-3">
+						<span
+							className="flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 text-white"
+							style={{ borderColor: ch.color, backgroundColor: ch.color }}
+						>
+							<svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+							</svg>
+						</span>
+						<span className="diary-title text-base text-[var(--ink)]">
+							{ch.name}
+						</span>
+					</div>
+				))}
+			</div>
 		);
 	}
+
+	// Build list: completed habits first (from entry storage), then remaining global habits
+	const completedIds = new Set(completedHabits.map((ch) => ch.id));
+	const visibleHabits: Habit[] = [
+		// Completed habits first, using stored name/color as base, override with global if exists
+		...completedHabits.map((ch) => {
+			const global = habits.find((h) => h.id === ch.id);
+			return global ?? { id: ch.id, name: ch.name, color: ch.color };
+		}),
+		// Then global habits not yet completed
+		...habits.filter((h) => !completedIds.has(h.id)),
+	];
 
 	return (
 		<div className="space-y-2">
 			{visibleHabits.map((habit) => {
-				const done = completedHabits.includes(habit.id);
+				const done = completedIds.has(habit.id);
 				const isEditing = editingId === habit.id;
 
 				if (isEditing) {

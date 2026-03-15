@@ -168,21 +168,84 @@ export const SELFCARE_COLORS: Record<SelfCareRange, string> = {
 	"30+": "#22c55e",
 };
 
+// ── Tracker Value (full copy stored per entry) ──────────────────────────────
+
+export interface TrackerValue {
+	id: string;
+	label: string;
+	color: string;
+}
+
 // ── Diary Entry ──────────────────────────────────────────────────────────────
 
 export interface DiaryEntry {
 	date: string;
-	weather?: WeatherOption;
-	mood?: MoodOption;
-	money?: MoneyRange;
-	steps?: StepsRange;
-	sleep?: SleepRange;
-	selfCare?: SelfCareRange;
+	weather?: TrackerValue;
+	mood?: TrackerValue;
+	money?: TrackerValue;
+	steps?: TrackerValue;
+	sleep?: TrackerValue;
+	selfCare?: TrackerValue;
 	notes?: string;
-	completedHabits?: string[];
+	/** Each entry stores { id, name, color } — legacy entries may have plain string IDs */
+	completedHabits?: CompletedHabit[];
 	finished?: boolean;
 	/** Frozen snapshot created when the day is marked complete */
 	snapshot?: DaySnapshot;
+}
+
+/**
+ * Normalize a stored tracker field that may be a legacy string ID
+ * or a full TrackerValue object.
+ */
+export function normalizeTrackerValue(
+	raw: unknown,
+	fallbackLabels?: Record<string, string>,
+	fallbackColors?: Record<string, string>,
+): TrackerValue | undefined {
+	if (!raw) return undefined;
+	if (typeof raw === "object" && raw !== null && "id" in raw) {
+		return raw as TrackerValue;
+	}
+	if (typeof raw === "string") {
+		return {
+			id: raw,
+			label: fallbackLabels?.[raw] ?? raw,
+			color: fallbackColors?.[raw] ?? "#a8a29e",
+		};
+	}
+	return undefined;
+}
+
+// ── Completed Habit (full copy stored per entry) ────────────────────────────
+
+export interface CompletedHabit {
+	id: string;
+	name: string;
+	color: string;
+}
+
+/**
+ * Normalize a completed habit entry that may be a legacy plain string ID
+ * or a full CompletedHabit object.
+ */
+export function normalizeCompletedHabit(
+	raw: unknown,
+	habits: Habit[],
+): CompletedHabit | undefined {
+	if (!raw) return undefined;
+	if (typeof raw === "object" && raw !== null && "id" in raw) {
+		return raw as CompletedHabit;
+	}
+	if (typeof raw === "string") {
+		const habit = habits.find((h) => h.id === raw);
+		return {
+			id: raw,
+			name: habit?.name ?? raw,
+			color: habit?.color ?? "#a8a29e",
+		};
+	}
+	return undefined;
 }
 
 // ── Snapshot (immutable copy stored per finished day) ────────────────────────
