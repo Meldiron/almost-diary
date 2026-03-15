@@ -179,15 +179,50 @@ export interface DiaryEntry {
 	sleep?: SleepRange;
 	selfCare?: SelfCareRange;
 	notes?: string;
-	completedStamps?: string[];
+	completedHabits?: string[];
 	finished?: boolean;
+	/** Frozen snapshot created when the day is marked complete */
+	snapshot?: DaySnapshot;
 }
 
-// ── Stamps ───────────────────────────────────────────────────────────────────
+// ── Snapshot (immutable copy stored per finished day) ────────────────────────
 
-export interface Stamp {
+export interface TrackerSnapshot {
+	categoryId: string;
+	title: string;
+	value: string;
+	label: string;
+	color: string;
+}
+
+export interface HabitSnapshot {
+	name: string;
+	color: string;
+}
+
+export interface DaySnapshot {
+	trackers: TrackerSnapshot[];
+	habits: HabitSnapshot[];
+	notes?: string;
+}
+
+// ── Habits ───────────────────────────────────────────────────────────────────
+
+export const HABIT_COLORS = [
+	"#f472b6",
+	"#fb923c",
+	"#facc15",
+	"#4ade80",
+	"#34d399",
+	"#22d3ee",
+	"#60a5fa",
+	"#a78bfa",
+	"#e879f9",
+	"#f87171",
+] as const;
+
+export interface Habit {
 	id: string;
-	description: string;
-	imageUrl?: string;
-	createdAt: string;
+	name: string;
+	color: string;
 }

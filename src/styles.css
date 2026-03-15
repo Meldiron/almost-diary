@@ -264,6 +264,11 @@ a:hover {
   color: var(--ink);
 }
 
+/* ── Habit checkbox hover uses per-habit color ───────────────────────── */
+.habit-checkbox:hover {
+  border-color: var(--habit-color, var(--accent-soft)) !important;
+}
+
 /* ── Animations ───────────────────────────────────────────────────────── */
 button,
 a {

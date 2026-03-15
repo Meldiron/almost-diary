@@ -377,6 +377,135 @@ export const selfCareEffects: Record<string, (r: DOMRect) => void> = {
 	"30+": (r) => effectSelfCare(r, 5),
 };
 
+// ── Habit complete effect (small, localized confetti from the checkbox) ──────
+
+export function effectHabitComplete(rect: DOMRect) {
+	const container = document.createElement("div");
+	container.style.cssText =
+		"position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;overflow:hidden";
+	document.body.appendChild(container);
+
+	const cx = rect.left + rect.width / 2;
+	const cy = rect.top + rect.height / 2;
+	const chars = ["✦", "·", "★", "✧", "●"];
+	const colors = ["#34d399", "#60a5fa", "#fbbf24", "#a78bfa", "#f472b6"];
+
+	const particles: {
+		el: HTMLElement;
+		x: number;
+		y: number;
+		dx: number;
+		dy: number;
+		rotation: number;
+		dr: number;
+	}[] = [];
+
+	for (let i = 0; i < 12; i++) {
+		const el = document.createElement("div");
+		const angle = Math.random() * Math.PI * 2;
+		const speed = randRange(1.5, 4);
+		el.textContent = chars[Math.floor(Math.random() * chars.length)];
+		el.style.cssText = `position:absolute;left:${cx}px;top:${cy}px;font-size:${randRange(8, 14)}px;color:${colors[Math.floor(Math.random() * colors.length)]};pointer-events:none;will-change:transform,opacity;`;
+		container.appendChild(el);
+		particles.push({
+			el,
+			x: 0,
+			y: 0,
+			dx: Math.cos(angle) * speed,
+			dy: Math.sin(angle) * speed - randRange(1, 2.5),
+			rotation: randRange(-20, 20),
+			dr: randRange(-8, 8),
+		});
+	}
+
+	const start = performance.now();
+	const duration = 700;
+
+	function animate(now: number) {
+		const progress = (now - start) / duration;
+		if (progress >= 1) {
+			container.remove();
+			return;
+		}
+		for (const p of particles) {
+			p.x += p.dx;
+			p.y += p.dy;
+			p.dy += 0.12;
+			p.rotation += p.dr;
+			const opacity = Math.max(0, 1 - progress * 1.5);
+			p.el.style.transform = `translate(-50%, -50%) translate(${p.x}px, ${p.y}px) rotate(${p.rotation}deg)`;
+			p.el.style.opacity = String(opacity);
+		}
+		requestAnimationFrame(animate);
+	}
+
+	requestAnimationFrame(animate);
+}
+
+// ── Habit undo effect (small poof that collapses inward) ─────────────────────
+
+export function effectHabitUndo(rect: DOMRect) {
+	const container = document.createElement("div");
+	container.style.cssText =
+		"position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;overflow:hidden";
+	document.body.appendChild(container);
+
+	const cx = rect.left + rect.width / 2;
+	const cy = rect.top + rect.height / 2;
+	const chars = ["·", "•", "×", "○", "~"];
+	const colors = ["#a8a29e", "#78716c", "#d6d3d1", "#ef4444", "#f87171"];
+
+	const particles: {
+		el: HTMLElement;
+		startX: number;
+		startY: number;
+		dx: number;
+		dy: number;
+	}[] = [];
+
+	for (let i = 0; i < 14; i++) {
+		const el = document.createElement("div");
+		const angle = Math.random() * Math.PI * 2;
+		const dist = randRange(30, 55);
+		const startX = Math.cos(angle) * dist;
+		const startY = Math.sin(angle) * dist;
+		el.textContent = chars[Math.floor(Math.random() * chars.length)];
+		el.style.cssText = `position:absolute;left:${cx}px;top:${cy}px;font-size:${randRange(10, 16)}px;color:${colors[Math.floor(Math.random() * colors.length)]};pointer-events:none;will-change:transform,opacity;`;
+		container.appendChild(el);
+		particles.push({
+			el,
+			startX,
+			startY,
+			dx: Math.cos(angle) * randRange(0.3, 1),
+			dy: Math.sin(angle) * randRange(0.3, 1),
+		});
+	}
+
+	const start = performance.now();
+	const duration = 450;
+
+	function animate(now: number) {
+		const progress = (now - start) / duration;
+		if (progress >= 1) {
+			container.remove();
+			return;
+		}
+		const ease = 1 - (1 - progress) * (1 - progress);
+		for (const p of particles) {
+			const drift = ease * 8;
+			const x = p.startX * (1 - ease) + p.dx * drift;
+			const y = p.startY * (1 - ease) + p.dy * drift;
+			const opacity = Math.max(0, 1 - ease);
+			const scale = 1 - ease * 0.6;
+			p.el.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`;
+			p.el.style.opacity = String(opacity);
+		}
+		requestAnimationFrame(animate);
+	}
+
+	requestAnimationFrame(animate);
+}
+
 // ── Generic select effect ────────────────────────────────────────────────────
 
 export function effectSelect(rect: DOMRect) {

@@ -1,9 +1,8 @@
-import type { DiaryEntry, Stamp } from "./types";
+import type { DiaryEntry, Habit } from "./types";
 
 export const STORAGE_KEYS = {
 	entries: "diary-entries",
-	stamps: "diary-stamps",
-	openrouterKey: "diary-openrouter-key",
+	habits: "diary-habits",
 } as const;
 
 function getItem<T>(key: string, fallback: T): T {
@@ -38,24 +37,12 @@ export function saveEntry(entry: DiaryEntry): void {
 	setItem(STORAGE_KEYS.entries, entries);
 }
 
-// ── Stamps ───────────────────────────────────────────────────────────────────
+// ── Habits ───────────────────────────────────────────────────────────────────
 
-export function getStamps(): Stamp[] {
-	return getItem<Stamp[]>(STORAGE_KEYS.stamps, []);
+export function getHabits(): Habit[] {
+	return getItem<Habit[]>(STORAGE_KEYS.habits, []);
 }
 
-export function saveStamps(stamps: Stamp[]): void {
-	setItem(STORAGE_KEYS.stamps, stamps);
-}
-
-// ── API Key ──────────────────────────────────────────────────────────────────
-
-export function getApiKey(): string {
-	if (typeof window === "undefined") return "";
-	return localStorage.getItem(STORAGE_KEYS.openrouterKey) ?? "";
-}
-
-export function saveApiKey(key: string): void {
-	if (typeof window === "undefined") return;
-	localStorage.setItem(STORAGE_KEYS.openrouterKey, key);
+export function saveHabits(habits: Habit[]): void {
+	setItem(STORAGE_KEYS.habits, habits);
 }

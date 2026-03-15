@@ -239,6 +239,20 @@ export const selfCareSounds: Record<string, () => void> = {
 	"30+": () => playSelfCare(5),
 };
 
+// ── Habit complete sound ─────────────────────────────────────────────────────
+
+export function playHabitComplete() {
+	playTone(659, 0.15, "sine", 0.1);
+	playTone(880, 0.2, "sine", 0.1, 0.08);
+	playTone(1047, 0.25, "sine", 0.08, 0.16);
+}
+
+export function playHabitUndo() {
+	playTone(440, 0.12, "triangle", 0.1);
+	playTone(370, 0.15, "triangle", 0.09, 0.06);
+	playTone(294, 0.2, "triangle", 0.07, 0.12);
+}
+
 // ── Generic select sound ─────────────────────────────────────────────────────
 
 export function playSelect() {

@@ -1,23 +1,22 @@
 import type { LucideIcon } from "lucide-react";
 import {
-	Activity,
 	Check,
 	Circle,
 	Cloud,
 	Coins,
 	Footprints,
 	Heart,
+	ListChecks,
 	Moon,
 	Notebook,
 	Sparkles,
 } from "lucide-react";
-import { ActivityLog } from "#/components/diary/ActivityLog";
 import { ConfigTracker } from "#/components/diary/ConfigTracker";
+import { HabitList } from "#/components/diary/HabitList";
 import { NotesInput } from "#/components/diary/NotesInput";
 import { TrackerSection } from "#/components/diary/TrackerSection";
 import { useDiaryEntry } from "#/hooks/useDiaryEntry";
-import { useLocalStorage } from "#/hooks/useLocalStorage";
-import { useStamps } from "#/hooks/useStamps";
+import { useHabits } from "#/hooks/useHabits";
 import { useTrackerConfig } from "#/hooks/useTrackerConfig";
 import {
 	effectConfetti,
@@ -37,6 +36,11 @@ import {
 	stepsSounds,
 	weatherSounds,
 } from "#/lib/sounds";
+import type {
+	DaySnapshot,
+	HabitSnapshot,
+	TrackerSnapshot,
+} from "#/lib/types";
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
 	weather: Cloud,
@@ -92,13 +96,49 @@ interface DiarySheetProps {
 
 export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 	const { entry, updateEntry } = useDiaryEntry(date);
-	const { stamps, addStamp, updateStamp, removeStamp } = useStamps();
-	const [apiKey] = useLocalStorage("diary-openrouter-key", "");
+	const { habits, addHabit, updateHabit, removeHabit } = useHabits();
 	const { optionsMap, config } = useTrackerConfig();
 	const finished = !!entry.finished;
 
+	function buildSnapshot(): DaySnapshot {
+		const trackers: TrackerSnapshot[] = [];
+		for (const cat of config.categories) {
+			const field = CATEGORY_FIELD[cat.id];
+			if (!field) continue;
+			const value = (entry as Record<string, unknown>)[field] as
+				| string
+				| undefined;
+			if (!value) continue;
+			const opt = cat.options.find((o) => o.id === value);
+			if (!opt) continue;
+			trackers.push({
+				categoryId: cat.id,
+				title: cat.title,
+				value: opt.id,
+				label: opt.label,
+				color: opt.color,
+			});
+		}
+
+		const completedIds = entry.completedHabits ?? [];
+		const habitSnapshots: HabitSnapshot[] = [];
+		for (const id of completedIds) {
+			const habit = habits.find((h) => h.id === id);
+			if (habit) {
+				habitSnapshots.push({ name: habit.name, color: habit.color });
+			}
+		}
+
+		return {
+			trackers,
+			habits: habitSnapshots,
+			notes: entry.notes,
+		};
+	}
+
 	function markComplete(e: React.MouseEvent) {
-		updateEntry({ finished: true });
+		const snapshot = buildSnapshot();
+		updateEntry({ finished: true, snapshot });
 		effectConfetti();
 		playConfetti();
 		const sheet = (e.currentTarget as HTMLElement).closest(".diary-sheet");
@@ -113,12 +153,12 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 		}
 	}
 
-	function handleToggleStamp(stampId: string) {
-		const current = entry.completedStamps ?? [];
-		const updated = current.includes(stampId)
-			? current.filter((id) => id !== stampId)
-			: [...current, stampId];
-		updateEntry({ completedStamps: updated });
+	function handleToggleHabit(habitId: string) {
+		const current = entry.completedHabits ?? [];
+		const updated = current.includes(habitId)
+			? current.filter((id) => id !== habitId)
+			: [...current, habitId];
+		updateEntry({ completedHabits: updated });
 	}
 
 	function getEntryValue(categoryId: string): string | undefined {
@@ -134,6 +174,7 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 	}
 
 	const trackerCategories = config.categories;
+	const snapshot = entry.snapshot;
 
 	return (
 		<div
@@ -161,59 +202,79 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 				</button>
 			</div>
 
-			<div className="diary-divider mt-10 mb-10" />
+			<div className="diary-divider mt-6 mb-6" />
 
 			{finished ? (
 				<>
-					{/* ── Finished: compact grid ──────────────────────── */}
+					{/* ── Finished: render from snapshot ──────────────────── */}
 					<div className="grid grid-cols-2 gap-x-8 gap-y-6">
-						{trackerCategories.map((cat) => {
-							const val = getEntryValue(cat.id);
-							const map = optionsMap[cat.id];
-							return (
-								<TrackerSection
-									key={cat.id}
-									title={cat.title}
-									icon={CATEGORY_ICONS[cat.id]}
-									finished
-									noRecord={!val}
-								>
-									<ConfigTracker
-										options={map.options}
-										labels={map.labels}
-										colors={map.colors}
-										value={val}
-										onChange={() => {}}
-									/>
-								</TrackerSection>
-							);
-						})}
+						{snapshot
+							? snapshot.trackers.map((t) => (
+									<TrackerSection
+										key={t.categoryId}
+										title={t.title}
+										icon={CATEGORY_ICONS[t.categoryId]}
+										finished
+									>
+										<ConfigTracker
+											options={[t.value]}
+											labels={{ [t.value]: t.label }}
+											colors={{ [t.value]: t.color }}
+											value={t.value}
+											onChange={() => {}}
+										/>
+									</TrackerSection>
+								))
+							: // Fallback for entries finished before snapshot existed
+								trackerCategories.map((cat) => {
+									const val = getEntryValue(cat.id);
+									const map = optionsMap[cat.id];
+									return (
+										<TrackerSection
+											key={cat.id}
+											title={cat.title}
+											icon={CATEGORY_ICONS[cat.id]}
+											finished
+											noRecord={!val}
+										>
+											<ConfigTracker
+												options={map.options}
+												labels={map.labels}
+												colors={map.colors}
+												value={val}
+												onChange={() => {}}
+											/>
+										</TrackerSection>
+									);
+								})}
 					</div>
 
-					<div className="diary-divider mt-10 mb-10" />
+					<div className="diary-divider mt-6 mb-6" />
+
+					<TrackerSection title="Habits" icon={ListChecks} finished>
+						<HabitList
+							habits={habits}
+							completedHabits={entry.completedHabits ?? []}
+							onToggle={() => {}}
+							onAdd={() => {}}
+							onUpdate={() => {}}
+							onDelete={() => {}}
+							readOnly
+							snapshot={snapshot?.habits}
+						/>
+					</TrackerSection>
+
+					<div className="diary-divider mt-6 mb-6" />
 
 					<TrackerSection
 						title="Notes"
 						icon={Notebook}
 						finished
-						noRecord={!entry.notes}
+						noRecord={!(snapshot?.notes ?? entry.notes)}
 					>
 						<p className="diary-title text-lg text-[var(--ink)]">
-							{entry.notes}
+							{snapshot?.notes ?? entry.notes}
 						</p>
-					</TrackerSection>
-
-					<div className="diary-divider mt-10 mb-10" />
-
-					<TrackerSection title="Activity Log" icon={Activity} finished>
-						<ActivityLog
-							stamps={stamps}
-							completedStamps={entry.completedStamps ?? []}
-							apiKey={apiKey}
-							onToggleStamp={() => {}}
-							onDeleteStamp={() => {}}
-							onAddStamp={() => {}}
-						/>
 					</TrackerSection>
 				</>
 			) : (
@@ -224,7 +285,7 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 						const map = optionsMap[cat.id];
 						return (
 							<div key={cat.id}>
-								{idx > 0 && <div className="diary-divider mt-14 mb-10" />}
+								{idx > 0 && <div className="diary-divider mt-8 mb-6" />}
 								<TrackerSection
 									title={cat.title}
 									icon={CATEGORY_ICONS[cat.id]}
@@ -245,7 +306,20 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 						);
 					})}
 
-					<div className="diary-divider mt-14 mb-10" />
+					<div className="diary-divider mt-8 mb-6" />
+
+					<TrackerSection title="Habits" icon={ListChecks}>
+						<HabitList
+							habits={habits}
+							completedHabits={entry.completedHabits ?? []}
+							onToggle={handleToggleHabit}
+							onAdd={addHabit}
+							onUpdate={updateHabit}
+							onDelete={removeHabit}
+						/>
+					</TrackerSection>
+
+					<div className="diary-divider mt-8 mb-6" />
 
 					<TrackerSection title="Notes" icon={Notebook}>
 						<NotesInput
@@ -254,21 +328,7 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 						/>
 					</TrackerSection>
 
-					<div className="diary-divider mt-14 mb-10" />
-
-					<TrackerSection title="Activity Log" icon={Activity}>
-						<ActivityLog
-							stamps={stamps}
-							completedStamps={entry.completedStamps ?? []}
-							apiKey={apiKey}
-							onToggleStamp={handleToggleStamp}
-							onDeleteStamp={removeStamp}
-							onAddStamp={addStamp}
-							onUpdateStamp={updateStamp}
-						/>
-					</TrackerSection>
-
-					<div className="diary-divider mt-14 mb-10" />
+					<div className="diary-divider mt-8 mb-6" />
 
 					<button
 						type="button"
