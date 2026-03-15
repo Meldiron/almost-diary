@@ -25,7 +25,7 @@ export function NotesInput({ value = "", onChange }: NotesInputProps) {
 			value={local}
 			onChange={(e) => handleChange(e.target.value)}
 			rows={3}
-			className="diary-title w-full resize-none border-2 border-dashed border-[var(--dash-color)] rounded-lg bg-transparent px-3 py-2.5 text-lg text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:border-[var(--accent)] focus:outline-none"
+			className="diary-title w-full resize-none border-2 border-dashed border-[var(--dash-color)] rounded-lg bg-[var(--paper)] px-3 py-2.5 text-lg text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:border-[var(--accent-vivid)] focus:outline-none"
 		/>
 	);
 }

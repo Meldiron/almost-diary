@@ -32,7 +32,7 @@ export function ActivityLog({
 			))}
 			<div className="flex flex-col items-center gap-2">
 				<AddStampDialog apiKey={apiKey} onAdd={onAddStamp} />
-				<span className="text-[0.65rem] font-medium text-[var(--sea-ink-soft)]">
+				<span className="diary-title text-sm font-medium text-[var(--ink-soft)]">
 					Add new
 				</span>
 			</div>

@@ -15,6 +15,7 @@
   --accent-vivid: #b8513d;
   --accent-soft: #d4a292;
   --accent-bg: rgba(196, 123, 107, 0.08);
+  --accent-bg-solid: #f8ece9;
   --paper: #faf6f1;
   --paper-warm: #f5efe7;
   --paper-edge: #e8ddd2;
@@ -67,6 +68,7 @@
   --accent-vivid: #e07760;
   --accent-soft: #a36b5c;
   --accent-bg: rgba(212, 145, 127, 0.1);
+  --accent-bg-solid: #2a1f1c;
   --paper: #1a1614;
   --paper-warm: #201c19;
   --paper-edge: #2e2824;

@@ -1,5 +1,6 @@
 interface ImageChoice {
 	message: {
+		content?: string;
 		images?: Array<{
 			image_url: {
 				url: string;
@@ -20,7 +21,7 @@ export async function generateStampImage(
 ): Promise<string | undefined> {
 	if (!apiKey) return undefined;
 
-	const prompt = `Create a cute, minimal, flat-style sticker icon for a diary activity stamp. The activity is: "${description}". ${context ? `Additional context: ${context}.` : ""} Style: soft pastel colors, simple shapes, white background, no text, kawaii aesthetic.`;
+	const prompt = `Generate an image: A cute, minimal, flat-style sticker icon for a diary activity stamp. The activity is: "${description}". ${context ? `Additional context: ${context}.` : ""} Style: soft pastel colors, simple shapes, white background, no text, kawaii aesthetic. Square format. The sticker should be tightly cropped to the subject with zero padding or margin`;
 
 	const response = await fetch(
 		"https://openrouter.ai/api/v1/chat/completions",
@@ -33,11 +34,7 @@ export async function generateStampImage(
 			body: JSON.stringify({
 				model: "google/gemini-3.1-flash-image-preview",
 				messages: [{ role: "user", content: prompt }],
-				modalities: ["image"],
-				image_config: {
-					aspect_ratio: "1:1",
-					image_size: "0.5K",
-				},
+				modalities: ["text", "image"],
 			}),
 		},
 	);

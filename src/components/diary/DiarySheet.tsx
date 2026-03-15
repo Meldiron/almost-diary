@@ -20,12 +20,30 @@ import { useDiaryEntry } from "#/hooks/useDiaryEntry";
 import { useLocalStorage } from "#/hooks/useLocalStorage";
 import { useStamps } from "#/hooks/useStamps";
 import {
+	effectConfetti,
+	moneyEffects,
+	selfCareEffects,
+	sleepEffects,
+	stepsEffects,
+} from "#/lib/effects";
+import {
+	moneySounds,
+	playConfetti,
+	selfCareSounds,
+	sleepSounds,
+	stepsSounds,
+} from "#/lib/sounds";
+import {
+	MONEY_COLORS,
 	MONEY_LABELS,
 	MONEY_OPTIONS,
+	SELFCARE_COLORS,
 	SELFCARE_LABELS,
 	SELFCARE_OPTIONS,
+	SLEEP_COLORS,
 	SLEEP_LABELS,
 	SLEEP_OPTIONS,
+	STEPS_COLORS,
 	STEPS_LABELS,
 	STEPS_OPTIONS,
 } from "#/lib/types";
@@ -51,6 +69,20 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 	const [apiKey] = useLocalStorage("diary-openrouter-key", "");
 	const finished = !!entry.finished;
 
+	function markComplete() {
+		updateEntry({ finished: true });
+		effectConfetti();
+		playConfetti();
+	}
+
+	function toggleFinished() {
+		if (finished) {
+			updateEntry({ finished: false });
+		} else {
+			markComplete();
+		}
+	}
+
 	function handleToggleStamp(stampId: string) {
 		const current = entry.completedStamps ?? [];
 		const updated = current.includes(stampId)
@@ -73,7 +105,7 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 				</h2>
 				<button
 					type="button"
-					onClick={() => updateEntry({ finished: !finished })}
+					onClick={toggleFinished}
 					className="rounded-full p-1 transition hover:bg-[var(--accent-bg)]"
 					aria-label={finished ? "Mark as unfinished" : "Mark as finished"}
 				>
@@ -118,6 +150,7 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 							<RangeTracker
 								options={MONEY_OPTIONS}
 								labels={MONEY_LABELS}
+								colors={MONEY_COLORS}
 								value={entry.money}
 								onChange={() => {}}
 							/>
@@ -132,6 +165,7 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 							<RangeTracker
 								options={STEPS_OPTIONS}
 								labels={STEPS_LABELS}
+								colors={STEPS_COLORS}
 								value={entry.steps}
 								onChange={() => {}}
 							/>
@@ -146,6 +180,7 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 							<RangeTracker
 								options={SLEEP_OPTIONS}
 								labels={SLEEP_LABELS}
+								colors={SLEEP_COLORS}
 								value={entry.sleep}
 								onChange={() => {}}
 							/>
@@ -160,6 +195,7 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 							<RangeTracker
 								options={SELFCARE_OPTIONS}
 								labels={SELFCARE_LABELS}
+								colors={SELFCARE_COLORS}
 								value={entry.selfCare}
 								onChange={() => {}}
 							/>
@@ -232,8 +268,11 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 						<RangeTracker
 							options={MONEY_OPTIONS}
 							labels={MONEY_LABELS}
+							colors={MONEY_COLORS}
 							value={entry.money}
 							onChange={(v) => updateEntry({ money: v })}
+							effects={moneyEffects}
+							sounds={moneySounds}
 						/>
 					</TrackerSection>
 
@@ -248,8 +287,11 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 						<RangeTracker
 							options={STEPS_OPTIONS}
 							labels={STEPS_LABELS}
+							colors={STEPS_COLORS}
 							value={entry.steps}
 							onChange={(v) => updateEntry({ steps: v })}
+							effects={stepsEffects}
+							sounds={stepsSounds}
 						/>
 					</TrackerSection>
 
@@ -264,8 +306,11 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 						<RangeTracker
 							options={SLEEP_OPTIONS}
 							labels={SLEEP_LABELS}
+							colors={SLEEP_COLORS}
 							value={entry.sleep}
 							onChange={(v) => updateEntry({ sleep: v })}
+							effects={sleepEffects}
+							sounds={sleepSounds}
 						/>
 					</TrackerSection>
 
@@ -280,8 +325,11 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 						<RangeTracker
 							options={SELFCARE_OPTIONS}
 							labels={SELFCARE_LABELS}
+							colors={SELFCARE_COLORS}
 							value={entry.selfCare}
 							onChange={(v) => updateEntry({ selfCare: v })}
+							effects={selfCareEffects}
+							sounds={selfCareSounds}
 						/>
 					</TrackerSection>
 
@@ -311,8 +359,8 @@ export function DiarySheet({ date, isCenter }: DiarySheetProps) {
 
 					<button
 						type="button"
-						onClick={() => updateEntry({ finished: true })}
-						className="diary-title flex w-full items-center justify-center gap-2.5 rounded-lg border border-dashed border-[var(--accent-soft)] bg-[var(--accent-bg)] py-4 text-lg font-semibold text-[var(--accent-vivid)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/15"
+						onClick={markComplete}
+						className="diary-title flex w-full items-center justify-center gap-2.5 rounded-lg border-2 border-dashed border-[var(--accent-soft)] bg-[var(--accent-bg)] py-4 text-lg font-semibold text-[var(--accent)] transition hover:border-[var(--accent-vivid)] hover:bg-[rgba(196,123,107,0.15)]"
 					>
 						<CheckCircle2 className="h-6 w-6" />
 						Mark day as complete
